@@ -10,7 +10,3 @@ Content Curation and Personalization: The platform utilizes a recommendation sys
 Multimodal Summarization: The system leverages BERT and GPT models for text summarization and CLIP for visual summary (thumbnail or short video clip) generation.
 
 Toxic Content Detection and Removal: A toxicity detection module is integrated into the pipeline to ensure content safety by filtering out toxic text, image, or video content.
-
-Multilingual Support: The system supports multiple languages, making it accessible to non-English speakers.
-
-User-friendly Interface: The intuitive, user-friendly interface allows users to view summarized news content, provide feedback, and customize their news preferences.
