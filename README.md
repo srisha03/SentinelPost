@@ -7,6 +7,6 @@ Key Features
 
 Content Curation and Personalization: The platform utilizes a recommendation system to curate news feeds personalized to each user's preferences, interests, and past behavior.
 
-Multimodal Summarization: The system leverages BERT and GPT models for text summarization and CLIP for visual summary (thumbnail or short video clip) generation.
+Multimodal Summarization: The system leverages BART for text summarization and CLIP for visual summary (thumbnail or short video clip) generation.
 
 Toxic Content Detection and Removal: A toxicity detection module is integrated into the pipeline to ensure content safety by filtering out toxic text, image, or video content.
