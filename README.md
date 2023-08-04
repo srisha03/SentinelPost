@@ -25,8 +25,10 @@ Make sure you have the following installed on your system:
 2. Navigate to the Project Directory - Change your current working directory to the project folder.
 3. Install Poetry (if not already installed) - pip install poetry
 4. Set Up the Virtual Environment and Install Dependencies
-      run the command "poetry install" to install the required libraries specified in pyproject.toml
-      "python -m poetry shell" to activate the virtual environment
+
+run the command "poetry install" to install the required libraries specified in pyproject.toml
+
+"python -m poetry shell" to activate the virtual environment
 
 
 ## Contributing
