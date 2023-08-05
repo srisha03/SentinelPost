@@ -127,7 +127,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-personal.txt
 
 # Spyder project settings
 .spyderproject
@@ -162,3 +161,6 @@ cython_debug/
 
 articles.db
 db.csv
+personal.txt
+db_read.py
+app.log

@@ -17,10 +17,10 @@ class NewsFetcher:
     }
 
     @classmethod
-    def fetch_latest_news(cls, keywords: List[str], lang: str = "en", page: int = 3) -> List[Dict]:
+    def fetch_news(cls, keywords: List[str], lang: str = "en", page_size: int = 5, page: int = 1) -> List[Dict]:
         # Calculate date range for today and yesterday
         today = datetime.today().strftime('%Y-%m-%d')
-        yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        from_ = (datetime.today() - timedelta(days=3)).strftime('%Y-%m-%d')
         
         # Combine keywords using 'AND' operator
         query = " AND ".join(keywords)
@@ -28,8 +28,9 @@ class NewsFetcher:
         params = {
             "q": query,
             "lang": lang,
-            "from": yesterday,
+            "from": from_,
             "to": today,
+            "page_size": page_size,
             "page": page
         }
         
@@ -38,12 +39,14 @@ class NewsFetcher:
         return data.get("articles", [])
 
 if __name__ == "__main__":
-    keywords = ["technology","china","environment"]
-    articles = NewsFetcher.fetch_latest_news(keywords=keywords)
+    keywords = ["environment"]
+    articles = NewsFetcher.fetch_news(keywords=keywords, page= 1)
+    # print(articles)
+
     for article in articles:
         print("Title:", article["title"])
         print("Author:", article["author"])
         print("Published Date:", article["published_date"])
-        print("Summary:", article["summary"])
+        print("Content:", article["summary"])
         print("URL:", article["link"])
         print("-------------------------------------------------")

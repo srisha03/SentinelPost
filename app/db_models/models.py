@@ -10,12 +10,16 @@ class Article(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(200), nullable=False)
     summary = Column(Text, nullable=True)
+    content = Column(Text, nullable=True)
     url = Column(String(500), nullable=True)
     source = Column(String(200), nullable=True)
     published_at = Column(DateTime, nullable=True)
     category = Column(String(100), nullable=False)
+    query_param = Column(Text, nullable=True)
     language = Column(String(20), nullable=False)
+    country = Column(String(50), nullable=True)
     timestamp = Column(DateTime, nullable=False)
+    rank = Column(Integer, nullable=True)
 
     user_histories = relationship('UserHistory', back_populates='article')
 
