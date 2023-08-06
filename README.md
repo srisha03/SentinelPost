@@ -11,6 +11,8 @@ Multimodal Summarization: The system leverages BART for text summarization and C
 
 Toxic Content Detection and Removal: A toxicity detection module is integrated into the pipeline to ensure content safety by filtering out toxic text, image, or video content.
 
+Recommendation Engine: Integrated personalization specific to the reader. (Future state)
+
 
 ## Prerequisites
 
