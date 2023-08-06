@@ -41,12 +41,12 @@ class NewsFetcher:
 if __name__ == "__main__":
     keywords = ["environment"]
     articles = NewsFetcher.fetch_news(keywords=keywords, page= 1)
-    # print(articles)
+    print(articles)
 
-    for article in articles:
-        print("Title:", article["title"])
-        print("Author:", article["author"])
-        print("Published Date:", article["published_date"])
-        print("Content:", article["summary"])
-        print("URL:", article["link"])
-        print("-------------------------------------------------")
+    # for article in articles:
+    #     print("Title:", article["title"])
+    #     print("Author:", article["author"])
+    #     print("Published Date:", article["published_date"])
+    #     print("Content:", article["summary"])
+    #     print("URL:", article["link"])
+    #     print("-------------------------------------------------")
