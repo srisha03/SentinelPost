@@ -18,6 +18,60 @@ DATABASE_URL = "sqlite:///articles.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
+# Initialize services and models
+news_fetcher = NewsFetcher()
+summarizer = TextSummarizer()
+
+def main():
+    state = st.session_state
+
+    # Streamlit UI
+    st.title("SentinelPost")
+    st.write("Your personalized, safe AI news platform")
+
+    initialize_state(state)
+
+    # User Search Bar
+    with st.form("search_bar"):
+        state.user_query = st.text_input("Search for news", "")
+        submitted = st.form_submit_button("Submit")
+
+    if submitted:
+        state.articles_to_display = []
+        user_tokens = state.user_query.split()
+        # Create a list of conditions to check if each token is present in the Article summary
+        conditions = [Article.summary.contains(token) for token in user_tokens]
+        # Combine the conditions using the and_ operator
+        combined_condition = and_(*conditions)
+        # Query articles that contain most, if not all, of the tokens in the user_query and have lower rank values
+        state.articles_to_display = SessionLocal().query(Article).filter(combined_condition).order_by(Article.rank).limit(5).all()
+
+        # News Section
+        if len(state.articles_to_display) == 5:
+            display_news(state.articles_to_display)
+        else:
+            fetch_and_store_articles(user_tokens)
+            state.articles_to_display = SessionLocal().query(Article).filter(combined_condition).order_by(Article.rank).limit(5).all()
+            display_news(state.articles_to_display)
+
+    # # Recommended Section
+    # category = st.selectbox("Recommended Categories", ["Hottest", "Sports", "Technology", "Politics", "Education", "Global"])
+    # if category and not user_query:
+    #     articles_to_display = SessionLocal().query(Article).filter(Article.category.contains(category)).limit(5).all()
+    #     display_news(articles_to_display)
+
+    # Fetch and store articles (can be triggered by a Streamlit button or other mechanism)
+    # For now, using a static list of queries
+    # queries = ["technology"]
+    # fetch_and_store_articles(queries)
+
+def initialize_state(state):
+    state.user_query = ''
+    state.articles_to_display = []
+
+def reset_state(state):
+    state.user_query = ''
+
 def fetch_and_store_articles(queries):
     """Fetches articles based on queries, summarizes them, and stores in the database."""
     try:
@@ -71,7 +125,6 @@ def fetch_and_store_articles(queries):
         print(f"Exception raised: {e}")  # Print the exception
         raise
 
-
 def display_news(articles):
     """Displays news articles in the Streamlit UI."""
     for article in articles:
@@ -86,39 +139,4 @@ def display_news(articles):
 
 # Main Execution
 if __name__ == "__main__":
-    # Initialize services and models
-    news_fetcher = NewsFetcher()
-    summarizer = TextSummarizer()
-
-    # Streamlit UI
-    st.title("SentinelPost")
-    st.write("Your personalized, safe AI news platform")
-
-    # User Search Bar
-    user_query = st.text_input("Search for news", "")
-    articles_to_display = []
-
-    if user_query:
-        user_tokens = user_query.split()
-        fetch_and_store_articles(user_tokens)
-        # Create a list of conditions to check if each token is present in the Article summary
-        conditions = [Article.summary.contains(token) for token in user_tokens]
-        # Combine the conditions using the and_ operator
-        combined_condition = and_(*conditions)
-        # Query articles that contain most, if not all, of the tokens in the user_query and have lower rank values
-        articles_to_display = SessionLocal().query(Article).filter(combined_condition).order_by(Article.rank).limit(5).all()
-
-
-    # News Section
-    display_news(articles_to_display)
-
-    # Recommended Section
-    category = st.selectbox("Recommended Categories", ["Hottest", "Sports", "Technology", "Politics", "Education", "Global"])
-    if category and not user_query:
-        articles_to_display = SessionLocal().query(Article).filter(Article.category.contains(category)).limit(5).all()
-        display_news(articles_to_display)
-
-    # Fetch and store articles (can be triggered by a Streamlit button or other mechanism)
-    # For now, using a static list of queries
-    # queries = ["technology"]
-    # fetch_and_store_articles(queries)
+    main()
