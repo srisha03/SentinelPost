@@ -17,7 +17,7 @@ Recommendation Engine: Integrated personalization specific to the reader. (Futur
 ## Prerequisites
 
 Make sure you have the following installed on your system:
-- Python (version 3.6 or higher)
+- Python (version 3.10 or higher)
 - pip (Python package manager)
 
 
