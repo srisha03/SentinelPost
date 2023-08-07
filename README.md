@@ -5,13 +5,11 @@ SentinelPost is an open-source project aimed at building a personalized, inclusi
 
 Key Features
 
-Content Curation and Personalization: The platform utilizes a recommendation system to curate news feeds personalized to each user's preferences, interests, and past behavior.
-
 Multimodal Summarization: The system leverages BART for text summarization and Stable Diffusion for a visual summary (thumbnail or short video clip) generation.
 
 Toxic Content Detection and Removal: A toxicity detection module is integrated into the pipeline to ensure content safety by filtering out toxic text, image, or video content.
 
-Recommendation Engine: Integrated personalization specific to the reader. (Future state)
+Content Curation and Personalization: The platform utilizes a recommendation system to curate news feeds personalized to each user's preferences, interests, and past behavior. (Future state)
 
 
 ## Prerequisites
