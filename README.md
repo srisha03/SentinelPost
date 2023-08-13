@@ -23,8 +23,8 @@ Make sure you have the following installed on your system:
 
 1. Clone the Repository
 2. Navigate to the Project Directory - Change your current working directory to the project folder.
-3. Install Poetry (if not already installed) - pip install poetry
-4. Set Up the Virtual Environment and Install Dependencies - run the command "poetry install" to install the required libraries specified in pyproject.toml - "poetry shell" to activate your virtual environment
+3. Create and activate a venv
+4. Install requirements and run the app with streamlit run main.py
 
 
 ## Contributing
