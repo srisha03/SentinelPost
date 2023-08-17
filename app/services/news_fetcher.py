@@ -16,7 +16,6 @@ class NewsFetcher:
         "x-api-key": os.getenv("NEWSFETCHER_API_KEY")
     }
 
-    @classmethod
     def fetch_news(cls, keywords: List[str], lang: str = "en", page_size: int = 5, page: int = 1) -> List[Dict]:
         # Calculate date range for today and yesterday
         today = datetime.today().strftime('%Y-%m-%d')

@@ -20,7 +20,7 @@ class Article(Base):
     country = Column(String(50), nullable=True)
     timestamp = Column(DateTime, nullable=False)
     rank = Column(Integer, nullable=True)
-
+    image = Column(Text, nullable=True)
     user_histories = relationship('UserHistory', back_populates='article')
 
 class UserHistory(Base):
