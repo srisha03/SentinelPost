@@ -17,7 +17,8 @@ Content Curation and Personalization: The platform utilizes a recommendation sys
 Make sure you have the following installed on your system:
 - Python (version 3.10 or higher)
 - pip (Python package manager)
-
+  
+Important: The current code version is designed exclusively for CUDA, enabling image generation module execution in local environments. Please note that CUDNN and Torch support only cuda V11.7. Compatibility with CUDA is essential for optimal results.
 
 ## Getting Started
 
@@ -25,7 +26,6 @@ Make sure you have the following installed on your system:
 2. Navigate to the Project Directory - Change your current working directory to the project folder.
 3. Create and activate a venv
 4. Install requirements and run the app with streamlit run main.py
-
 
 ## Contributing
 
