@@ -18,7 +18,7 @@ Make sure you have the following installed on your system:
 - Python (version 3.10 or higher)
 - pip (Python package manager)
   
-Important: The current code version is designed exclusively for CUDA, enabling image generation module execution in local environments. Please note that CUDNN and Torch support only cuda V11.7. Compatibility with CUDA is essential for optimal results.
+Important: The current code version is designed exclusively for CUDA, enabling image generation module execution in local environments. Ensure that both CUDA version 11.7 and CUDNN are installed. Please be aware that PyTorch Release 22.05 is currently compatible only with CUDA 11.7.
 
 ## Getting Started
 
