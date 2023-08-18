@@ -9,17 +9,17 @@ from datetime import datetime
 import base64
 from app.db_models.models import Base, Article
 from app.services.news_fetcher import NewsFetcher
+from PIL import Image
 from app.services.img_gen import ImageGenerator
 from app.ml_models.summarizer import TextSummarizer
 from app.services.utils import preprocess_query
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-
+import torch
 
 # Set up logging
 logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 def main():
     print("Starting Streamlit app...Main Function\n")
@@ -38,6 +38,8 @@ def main():
         state.user_query = st.text_input("Search for news", "")
         submitted = st.form_submit_button("Submit")
 
+    image_filenames = []  # Initialize
+
     if submitted:
         # Fetch News if not fetched already
         if "NewsFetched" not in state.submitted_forms:
@@ -46,17 +48,39 @@ def main():
             state.submitted_forms.append("NewsFetched")
             print(state.submitted_forms)
 
-        display_news(state.articles_to_display)
+        # Create placeholders for articles
+        article_placeholders = [st.empty() for _ in state.articles_to_display]
+
+        # Display articles without images
+        for placeholder, article in zip(article_placeholders, state.articles_to_display):
+            display_single_article(placeholder, article, None)
 
         # Fetch Images if News has been fetched but Images haven't
         if "NewsFetched" in state.submitted_forms and "ImagesFetched" not in state.submitted_forms:
             logger.info("Attempting to Fetch Images...")
-            state.articles_to_display.extend(get_images(state, SessionLocal))
+            logger.info("Clearing CUDA Cache...")
+            torch.cuda.empty_cache()
+            image_generator = ImageGenerator()
+            image_filenames = get_images(state, image_generator)
             state.submitted_forms.append("ImagesFetched")
 
-        display_news(state.articles_to_display)
+        # Update placeholders with articles and images
+        for placeholder, article, image_filename in zip(article_placeholders, state.articles_to_display, image_filenames):
+            display_single_article(placeholder, article, image_filename)
 
-
+def display_single_article(placeholder, article, image_filename):
+    """Displays the articles in the given placeholder."""
+    col1, col2 = placeholder.columns([1, 3])
+    with col1:
+        if image_filename:
+            img_to_display = Image.open(image_filename)
+            col1.image(img_to_display, caption=article.title, use_column_width=True)
+        else:
+            col1.image("https://via.placeholder.com/150", caption=article.title, use_column_width=True)
+    with col2:
+        col2.subheader(article.title)
+        col2.write(article.summary)
+        col2.write(article.published_at)
 
 def initialize_state(state):
     # Early exit if services and database are already initialized
@@ -76,7 +100,7 @@ def initialize_state(state):
     DATABASE_URL = "sqlite:///articles.db"
     engine = create_engine(DATABASE_URL)
 
-    # Check if SQLite database exists, and create tables if it doesn't
+    # Check if SQLite database exists create tables if it not
     if DATABASE_URL.startswith("sqlite"):
         logger.info("Checking if database exists...")
         db_path = DATABASE_URL.split("///")[1]
@@ -99,6 +123,10 @@ def initialize_state(state):
     logger.info("DB and Services Initializing successful.")
     return state.news_fetcher, state.summarizer, state.SessionLocal
 
+def reset_state(state):
+    state.user_query = ''
+    state.articles_to_display = []
+    state.submitted_forms = []
 
 def get_news(state, submitted, news_fetcher, summarizer, SessionLocal, recursion_depth=0):
     if submitted:
@@ -153,38 +181,6 @@ def get_news(state, submitted, news_fetcher, summarizer, SessionLocal, recursion
                 fetch_and_store_articles(news_fetcher, summarizer, SessionLocal, user_tokens)
                 return get_news(state, submitted, news_fetcher, summarizer, SessionLocal, recursion_depth+1)
 
-            
-def get_images(state, SessionLocal):
-           
-    with st.spinner("Generating images..."):
-        logger.info("Attempting to Fetch Images...")
-        image_generator = ImageGenerator()
-
-        # Generate images for each article
-        for article in state.articles_to_display:
-            image_base64_string = image_generator.generate_image(article)
-            if isinstance(image_base64_string, str):
-                try:
-                    # convert base 64 string to an image
-                    imgdata = base64.b64decode(image_base64_string)
-                    article.image = imgdata
-                    update_article_image(SessionLocal, article, imgdata)
-                    logger.info(f"Image generated successfully for article: {article.title}")
-                except Exception as e:
-                    logger.error(f"Error while updating article image: {e}")
-                    print(f"Exception raised: {e}")
-                    pass
-            else:
-                logger.warning(f"Image generation failed for article: {article.title} Base64 string type: {type(image_base64_string)}")
-
-        state.submitted_forms.append("ImagesFetched")
-        return state.articles_to_display if state.articles_to_display else []
-
-def reset_state(state):
-    state.user_query = ''
-    state.articles_to_display = []
-    state.submitted_forms = []
-
 def fetch_and_store_articles(news_fetcher, summarizer, SessionLocal, queries):
     """Fetches articles based on queries, summarizes them, and stores in the database."""
     try:
@@ -229,37 +225,18 @@ def fetch_and_store_articles(news_fetcher, summarizer, SessionLocal, queries):
         logger.error(f"Error while fetching and storing articles: {e}")
         raise
 
-def update_article_image(SessionLocal, article, image):
-    """Updates the image column of the Article object."""
-    try:
-        db = SessionLocal()
-        db_article = db.query(Article).filter(Article.url == article.url).first()
-        db_article.image = image
-        db.commit()
-    except Exception as e:
-        logger.error(f"Error while updating article image: {e}")
-        print(f"Exception raised: {e}") 
-        pass
+def get_images(state, image_generator):
+    with st.spinner("Generating images..."):
+        logger.info("Attempting to Fetch Images...")
 
-def display_news(articles):
-    """Displays news articles in the Streamlit UI."""
-    for article in articles:
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            if article.image != '':
-                # convert base 64 string to a png image
-                img_to_display = base64.b64decode(article.image)
-                
-                # Using a temporary file to store the image data
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
-                    tmpfile.write(img_to_display)
-                    st.image(tmpfile.name, caption=article.title, use_column_width=True)
-            else:
-                st.image("https://via.placeholder.com/150", caption=article.title, use_column_width=True)
-        with col2:
-            st.subheader(article.title)
-            st.write(article.summary)
-            st.write(article.published_at)
+        # Generate images for each article and store their filenames
+        image_filenames = []
+        for article in state.articles_to_display:
+            image_filename = image_generator.generate_image(article)
+            image_filenames.append(image_filename)
+
+        state.submitted_forms.append("ImagesFetched")
+        return image_filenames if image_filenames else []
 
 # Main Execution
 if __name__ == "__main__":
