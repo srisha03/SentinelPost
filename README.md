@@ -14,8 +14,8 @@ Content Curation and Personalization: The platform utilizes a recommendation sys
 ## Prerequisites
 
 Make sure you have the following installed on your system:
-- Python (version 3.10.6 or higher (not 3.11+))
-- pip (Python package manager)
+- Python (version 3.10.6 or higher)
+- pip
   
 Important: The current code version is designed exclusively for CUDA, enabling image generation module execution in local environments. Ensure that both CUDA version 11.7 and CUDNN are installed. Please be aware that PyTorch Release 22.05 is currently compatible only with CUDA 11.7.
 
